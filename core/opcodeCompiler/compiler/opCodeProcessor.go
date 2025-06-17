@@ -1,6 +1,7 @@
 package compiler
 
 import (
+	"bytes"
 	"errors"
 	"runtime"
 
@@ -165,9 +166,14 @@ func doCodeFusion(code []byte) ([]byte, error) {
 	fusedCode := make([]byte, len(code))
 	length := copy(fusedCode, code)
 	skipToNext := false
+	length = bytes.Index(code, []byte{byte(INVALID)})
 	for i := 0; i < length; i++ {
 		cur := i
 		skipToNext = false
+
+		if fusedCode[cur] == byte(INVALID) {
+			return fusedCode, nil
+		}
 		if fusedCode[cur] >= minOptimizedOpcode && fusedCode[cur] <= maxOptimizedOpcode {
 			return code, ErrFailPreprocessing
 		}
